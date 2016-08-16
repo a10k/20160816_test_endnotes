@@ -29,12 +29,10 @@ app.get('/',function(req,res){
 <style type="text/css">
 </style>
 </body>
-</html>`)
+</html>`);
 });
 
 app.post('/upload', function(req, res) {
-    var sampleFile;
- 
     if (!req.files) {
         res.send('No files were uploaded.');
         return;
