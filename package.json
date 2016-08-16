@@ -6,8 +6,8 @@
     "express-fileupload":"0.0.5"
   },
   "engines": {
-    "node": "0.10.x",
-    "npm": "1.2.x"
+    "node": "4.2.x",
+    "npm": "2.14.x"
   },
   "description": "20160816_test_endnote",
   "main": "web.js",
