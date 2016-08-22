@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset=utf-8>
+	<link rel="shortcut icon" type="image/x-icon" href="" />
+	<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.1/jquery.min.js"></script>
+	<script type="text/javascript" src="bootstrap-filestyle.js"> </script>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+	<title>DUP Publish Workflow Tool</title>
+</head>
+<body>
+    <div class="Header">Publishing Workflow Automation Tool - Prototype</div>
+
+
+
+    <div class="Form">
+		<p>Choose the indesign HTML file here:</p><form method="post" id="formID" enctype="multipart/form-data" action="/upload-indesign">
+		    <input type="file" id="inDesignFileInput" name="indesign" class="filestyle" data-input="false">
+		</form>
+    </div>
+
+    <div class="Form">
+		<p>Choose the word  file here:</p><form method="post" id="formWord" enctype="multipart/form-data" action="/upload-word">
+		    <input type="file" id="wordFileInput" name="word" class="filestyle" data-input="false">
+		</form>
+    </div>
+
+
+
+
+
+
+<script type="text/javascript">
+  $(function() {
+     $("#inDesignFileInput").change(function (){
+       document.getElementById("formID").submit();
+     });
+     $("#wordFileInput").change(function (){
+       document.getElementById("formWord").submit();
+     });
+
+  });
+</script>
+<style>
+*{
+  font-family: 'Open Sans'
+}
+html,body{
+  margin: 0px;
+  padding: 0px;
+}
+.Header{
+  background-color: black;
+  margin: 0px;
+  font-size: 20px;
+  padding: 14px;
+  color: white;
+}
+p,form{
+	display: inline-block;
+	padding: 4px;
+}
+.Form{
+	padding: 20px;
+}
+.bootstrap-filestyle.input-group{
+	display: inline-block;
+}
+</style>
+</body>
+</html>
