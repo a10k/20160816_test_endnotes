@@ -3,7 +3,7 @@ var fileUpload = require('express-fileupload');
 var fs = require('fs');
 var cheerio = require('cheerio')
 var mammoth = require("mammoth");
-var tidy = require('htmltidy').tidy;
+//var tidy = require('htmltidy').tidy;
 
 
 var app = express(); 
@@ -91,11 +91,7 @@ return string;
 }
 
 function outputToClient(html, res){
-  tidy(html, function(err, html) {
-      var $ = cheerio.load(html);
-      var text =  $('body').html();
-
-      var $ = cheerio.load(text)
+      var $ = cheerio.load(html)
       var endnoteOlElement;
         $('ol').find('li').each(function (index, element) {
         if(typeof endnoteOlElement === 'undefined'){
@@ -171,7 +167,6 @@ ${E.html()}
 `;
 
       res.send(string);
-  });
 }
 
 
