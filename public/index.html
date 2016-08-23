@@ -15,18 +15,18 @@
     <div class="Header">Publishing Workflow Automation Tool - Prototype</div>
 
 
+    <div class="Form">
+		<h3><strong>Choose the word  file here:</strong></h3><form method="post" id="formWord" enctype="multipart/form-data" action="/upload-word">
+		    <input type="file" id="wordFileInput" name="word" class="filestyle" data-input="false">
+		</form>
+    </div>
 
     <div class="Form">
-		<p>Choose the indesign HTML file here:</p><form method="post" id="formID" enctype="multipart/form-data" action="/upload-indesign">
+		<p>(or) Choose the indesign HTML file here:</p><form method="post" id="formID" enctype="multipart/form-data" action="/upload-indesign">
 		    <input type="file" id="inDesignFileInput" name="indesign" class="filestyle" data-input="false">
 		</form>
     </div>
 
-    <div class="Form">
-		<p>Choose the word  file here:</p><form method="post" id="formWord" enctype="multipart/form-data" action="/upload-word">
-		    <input type="file" id="wordFileInput" name="word" class="filestyle" data-input="false">
-		</form>
-    </div>
 
 
 
@@ -59,7 +59,7 @@ html,body{
   padding: 14px;
   color: white;
 }
-p,form{
+p,h3,form{
 	display: inline-block;
 	padding: 4px;
 }

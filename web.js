@@ -3,7 +3,7 @@ var fileUpload = require('express-fileupload');
 var fs = require('fs');
 var cheerio = require('cheerio')
 var mammoth = require("mammoth");
-
+var tidy = require('htmltidy').tidy;
 
 
 var app = express(); 
@@ -65,9 +65,7 @@ function handleWord(buff,res,name){
           var html = result.value; // The generated HTML 
           var messages = result.messages; // Any messages, such as warnings during conversion
 
-          //res.set({"Content-Disposition":"attachment; filename=\"clean_up_" + name + "\""});
-          
-          res.send(fillTemplate(html));
+          outputToClient(html, res);
       })
       .done();
 }
@@ -90,6 +88,90 @@ ${rteText}
 </html>
 `;
 return string;
+}
+
+function outputToClient(html, res){
+  tidy(html, function(err, html) {
+      var $ = cheerio.load(html);
+      var text =  $('body').html();
+
+      var $ = cheerio.load(text)
+      var endnoteOlElement;
+        $('ol').find('li').each(function (index, element) {
+        if(typeof endnoteOlElement === 'undefined'){
+          var thisId = $(element).attr('id');
+          if(thisId && thisId.match(/^endnote-/)){
+            $(element.parent).attr('id','endnote')
+            endnoteOlElement = $(element.parent);
+            $(element.parent).remove();
+          }
+        }
+      });
+
+        // Replace the [N] to N for sup script anchors
+      $('sup').find('a').each(function(index, element) {
+        var supText = $(this);
+        if(supText.text() && supText.text().match(/\[\d+\]/) ){
+          supText.text(supText.text().replace('[','').replace(']',''));
+        }
+      });
+
+
+      // Replace arrow with ' View in article' for all li in endnotes ol  
+        var E = cheerio.load(cheerio.load('').root().append(endnoteOlElement).html());
+      E('li').find('a').each(function(index, element) {
+        var link = E(this);
+        if(link.attr('href') && link.attr('href').match(/^#endnote/)){
+          link.text(' View in article');
+        }
+      });
+
+  var string = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset=utf-8>
+<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<style>
+*{
+  font-family: 'Open Sans'
+}
+html,body{
+  margin: 0px;
+  padding: 0px;
+}
+.Header{
+  background-color: black;
+  margin: 0px;
+  font-size: 20px;
+  padding: 14px;
+  color: white;
+}
+textarea{
+  display:block;
+  margin-left:auto;
+  margin-right:auto;
+}
+h2{
+  padding:8px;
+}
+</style>
+</head>
+<body>
+<div class="Header"><a style="color:white;" href="/">&larr; Back</a> Publishing Workflow Automation Tool - Prototype</div>
+<h2>RTE CONTENT</h2>
+<textarea rows="30" cols="100">
+${$.html()}
+</textarea>
+<h2>ENDNOTES CONTENT</h2>
+<textarea rows="30" cols="100">
+${E.html()}
+</textarea>
+</body>
+</html>
+`;
+
+      res.send(string);
+  });
 }
 
 
