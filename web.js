@@ -4,6 +4,7 @@ var fs = require('fs');
 var cheerio = require('cheerio')
 var mammoth = require("mammoth");
 //var tidy = require('htmltidy').tidy;
+var beautify = require('js-beautify').html;
 
 
 var app = express(); 
@@ -60,10 +61,16 @@ function handleHtml(text){
 
 
 function handleWord(buff,res,name){
-  mammoth.convertToHtml({buffer: buff})
+  var options = {
+      styleMap: [
+          "p[style-name='Quote'] => blockquote"
+      ]
+  };
+  mammoth.convertToHtml({buffer: buff},options)
       .then(function(result){
           var html = result.value; // The generated HTML 
           var messages = result.messages; // Any messages, such as warnings during conversion
+          console.log(messages);
 
           outputToClient(html, res);
       })
@@ -122,6 +129,11 @@ function outputToClient(html, res){
         }
       });
 
+
+  var rte = beautify($.html(), { indent_size: 2 });
+  var endnote = beautify(E.html(), { indent_size: 2 });
+
+
   var string = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -156,17 +168,20 @@ h2{
 <div class="Header"><a style="color:white;" href="/">&larr; Back</a> Publishing Workflow Automation Tool - Prototype</div>
 <h2>RTE CONTENT</h2>
 <textarea rows="30" cols="100">
-${$.html()}
+${rte}
 </textarea>
 <h2>ENDNOTES CONTENT</h2>
 <textarea rows="30" cols="100">
-${E.html()}
+${endnote}
 </textarea>
+<br>
+<br>
 </body>
 </html>
 `;
 
       res.send(string);
+      fs.writeFileSync(__dirname + '/log.html', rte,'utf8');
 }
 
 
