@@ -63,7 +63,8 @@ function handleHtml(text){
 function handleWord(buff,res,name){
   var options = {
       styleMap: [
-          "p[style-name='Quote'] => blockquote"
+          "p[style-name='Quote'] => blockquote",
+          "r[style-name='Quote Char'] => blockquote",
       ]
   };
   mammoth.convertToHtml({buffer: buff},options)
@@ -119,6 +120,25 @@ function outputToClient(html, res){
         }
       });
 
+      //Fix double sup > sup
+      $('sup').find('sup').each(function(index, element) {
+        var supSup = $(this);
+        if(supSup.parent()[0].children.length === 1){
+          var sup = $(element.parent)
+          sup.html($(element).html())
+        }
+      });
+
+      //Find and prepare h2 ids and build an array
+      var h2Array = [];
+      $('h2').each(function(index, element) {
+        var heading = $(this);
+        var headingText = heading.text()||'';
+        var headingId = headingText.replace(/[^a-zA-z0-9]+/g,'-').toLowerCase();
+        h2Array.push({id:headingId, text: headingText});
+        $(element).attr('id', headingId)
+      });
+
 
       // Replace arrow with ' View in article' for all li in endnotes ol  
         var E = cheerio.load(cheerio.load('').root().append(endnoteOlElement).html());
@@ -129,7 +149,12 @@ function outputToClient(html, res){
         }
       });
 
-
+  var h2Text = h2Array.map(function(heading){
+    return `<li><textarea cols="40" rows="2">${heading.text}</textarea><textarea cols="20" rows="2">#${heading.id}</textarea></li>`;
+  }).join('\n\n');
+  if(h2Text){
+    h2Text = '<h2>IN-ARTICLE NAVIGATION</h2><ul>'+h2Text+'</ul>';
+  }
   var rte = beautify($.html(), { indent_size: 2 });
   var endnote = beautify(E.html(), { indent_size: 2 });
 
@@ -162,10 +187,18 @@ textarea{
 h2{
   padding:8px;
 }
+li textarea {
+    display: inline-block;
+    margin: 5px;
+}
+li{
+    list-style-type: none;
+}
 </style>
 </head>
 <body>
 <div class="Header"><a style="color:white;" href="/">&larr; Back</a> Publishing Workflow Automation Tool - Prototype</div>
+${h2Text}
 <h2>RTE CONTENT</h2>
 <textarea rows="30" cols="100">
 ${rte}
