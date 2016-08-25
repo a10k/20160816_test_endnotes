@@ -207,6 +207,15 @@ function outputToClient(html, res){
         }
       });
 
+
+      //Fix blockquote span quote text p redundant issue
+      $('blockquote').find('span[class="quotes"]').each(function(index, element) {
+        var pInQuote = $(this);
+        $(pInQuote).find('p').each(function(nestedIndex, nestedElement){
+          $(nestedElement).replaceWith($(nestedElement).html())
+        })
+      });
+      
       //Find and prepare h2 ids and build an array
       var h2Array = [];
       $('h2').each(function(index, element) {
