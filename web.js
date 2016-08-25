@@ -5,11 +5,13 @@ var cheerio = require('cheerio')
 var mammoth = require("mammoth");
 //var tidy = require('htmltidy').tidy;
 var beautify = require('js-beautify').html;
-
+var Entities = require('html-entities').AllHtmlEntities;
+entities = new Entities();
 
 var app = express(); 
 app.use(fileUpload());
 app.use(express.static('public'));
+
 
 
 
@@ -65,13 +67,22 @@ function handleWord(buff,res,name){
       styleMap: [
           "p[style-name='Quote'] => blockquote",
           "r[style-name='Quote Char'] => blockquote",
-      ]
+      ],
+      convertImage:mammoth.images.imgElement(function(image) {
+          return image.read("base64").then(function(imageBuffer) {
+              return {
+                  src: "TBD"
+              };
+          });
+      })
   };
+  
+
   mammoth.convertToHtml({buffer: buff},options)
       .then(function(result){
           var html = result.value; // The generated HTML 
           var messages = result.messages; // Any messages, such as warnings during conversion
-          console.log(messages);
+          //console.log(messages);
 
           outputToClient(html, res);
       })
@@ -99,6 +110,73 @@ return string;
 }
 
 function outputToClient(html, res){
+      //Load HTML
+      html = beautify(html, { indent_size: 2 });
+
+      //Preprocess file for [DUP:RULES]
+      html = html.split('\n');
+      var newHtml = [];
+      html.map(function(eachLine){
+        
+      //Get pure inner text
+      plainText = cheerio.load(eachLine).root().text();
+      plainText = plainText.replace(/^\s+/,'');
+      plainText = plainText.replace(/\s+$/,'');
+
+
+
+        //BEGIN SIDEBAR DIV
+        if(plainText === "[DUP:begin-sidebar]"){
+          eachLine = '<div class="aside">';  
+        }
+        //END SIDEBAR DIV
+        if(plainText === "[DUP:end-sidebar]"){
+          eachLine = '</div>';  
+        }
+
+
+
+
+        //BEGIN QUOTE
+        if(plainText === "[DUP:begin-quote]"){
+          eachLine = '<blockquote><span class="text"><span class="quotes">';  
+        }
+        //BEGIN QUOTE ATTRIBUTION
+        if(plainText === "[DUP:begin-attribution]"){
+          eachLine = '</span></span><span class="attribution">';
+        }
+        //END QUOTE
+        if(plainText === "[DUP:end-quote]"){
+          eachLine = '</span></blockquote>';  
+        }
+
+
+
+        //BEGIN pullquote
+        if(plainText === "[DUP:begin-pullquote]"){
+          eachLine = '<blockquote><span class="text">';  
+        }
+        //END pullquote
+        if(plainText === "[DUP:end-pullquote]"){
+          eachLine = '</span></blockquote>';  
+        }
+
+        //Insert figure 
+        if(plainText.match(/\[DUP:insert\-figure(\d+)\]/)){
+          var imageId = plainText.replace(/\[DUP:insert\-figure(\d+)\]/,'$1');
+          eachLine = `\n<img src="/content/dam/dup-us-en/articles/SLUG-TBD/${imageId}.jpg" class="-rwd" alt="" data-id="${imageId}"/>\n`;  
+        }
+
+
+
+        newHtml.push(eachLine);
+
+      });
+      html = newHtml.join('\n');
+
+
+
+      //Cheerio processing
       var $ = cheerio.load(html)
       var endnoteOlElement;
         $('ol').find('li').each(function (index, element) {
@@ -112,7 +190,7 @@ function outputToClient(html, res){
         }
       });
 
-        // Replace the [N] to N for sup script anchors
+      // Replace the [N] to N for sup script anchors
       $('sup').find('a').each(function(index, element) {
         var supText = $(this);
         if(supText.text() && supText.text().match(/\[\d+\]/) ){
@@ -134,14 +212,14 @@ function outputToClient(html, res){
       $('h2').each(function(index, element) {
         var heading = $(this);
         var headingText = heading.text()||'';
-        var headingId = headingText.replace(/[^a-zA-z0-9]+/g,'-').toLowerCase();
+        var headingId = headingText.replace(/[^a-zA-Z0123456789]+/g,'-').toLowerCase().replace(/^\-/,'').replace(/\-$/,'');
         h2Array.push({id:headingId, text: headingText});
         $(element).attr('id', headingId)
       });
 
 
       // Replace arrow with ' View in article' for all li in endnotes ol  
-        var E = cheerio.load(cheerio.load('').root().append(endnoteOlElement).html());
+      var E = cheerio.load(cheerio.load('').root().append(endnoteOlElement).html());
       E('li').find('a').each(function(index, element) {
         var link = E(this);
         if(link.attr('href') && link.attr('href').match(/^#endnote/)){
@@ -149,14 +227,17 @@ function outputToClient(html, res){
         }
       });
 
+
+
+
   var h2Text = h2Array.map(function(heading){
     return `<li><textarea cols="40" rows="2">${heading.text}</textarea><textarea cols="20" rows="2">#${heading.id}</textarea></li>`;
   }).join('\n\n');
   if(h2Text){
     h2Text = '<h2>IN-ARTICLE NAVIGATION</h2><ul>'+h2Text+'</ul>';
   }
-  var rte = beautify($.html(), { indent_size: 2 });
-  var endnote = beautify(E.html(), { indent_size: 2 });
+  var rte = $.html();
+  var endnote = E.html();
 
 
   var string = `<!DOCTYPE html>
@@ -201,11 +282,11 @@ li{
 ${h2Text}
 <h2>RTE CONTENT</h2>
 <textarea rows="30" cols="100">
-${rte}
+${entities.encode(rte)}
 </textarea>
 <h2>ENDNOTES CONTENT</h2>
 <textarea rows="30" cols="100">
-${endnote}
+${entities.encode(endnote)}
 </textarea>
 <br>
 <br>
@@ -214,7 +295,7 @@ ${endnote}
 `;
 
       res.send(string);
-      fs.writeFileSync(__dirname + '/log.html', rte,'utf8');
+      //fs.writeFileSync(__dirname + '/log.html', rte,'utf8');
 }
 
 
