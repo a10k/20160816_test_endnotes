@@ -110,6 +110,7 @@ return string;
 }
 
 function outputToClient(html, res){
+  //fs.writeFileSync(__dirname + '/log.html', html,'utf8');
       //Load HTML
       html = beautify(html, { indent_size: 2 });
 
@@ -168,6 +169,12 @@ function outputToClient(html, res){
         }
 
 
+        //Add nav id to the next element... 
+        if(plainText === "[DUP:add-nav-id]"){
+          eachLine = `<div class="ADD-ID-NXT"></div>`;  
+        }
+
+
 
         newHtml.push(eachLine);
 
@@ -188,6 +195,18 @@ function outputToClient(html, res){
             $(element.parent).remove();
           }
         }
+      });
+      // Add dup-generate-id data attribute to all next siblings to add nav placeholder 
+      $('div[class="ADD-ID-NXT"]').each(function(index, element) {
+        var div = $(this);
+        var next = div.next();
+        div.remove();
+        next.attr('data-dup-generate-id','true');
+      });
+      // Add dup-generate-id data attribute to all h2 
+      $('h2').each(function(index, element) {
+        var h2 = $(this);
+        h2.attr('data-dup-generate-id','true');
       });
 
       // Replace the [N] to N for sup script anchors
@@ -215,15 +234,31 @@ function outputToClient(html, res){
           $(nestedElement).replaceWith($(nestedElement).html())
         })
       });
+      //Fix blockquote span text p redundant issue
+      $('blockquote').find('span[class="text"]').each(function(index, element) {
+        var pInQuote = $(this);
+        $(pInQuote).find('p').each(function(nestedIndex, nestedElement){
+          $(nestedElement).replaceWith($(nestedElement).html())
+        })
+      });
       
-      //Find and prepare h2 ids and build an array
+      //Find and prepare h2/add-nav ids and build an array
       var h2Array = [];
-      $('h2').each(function(index, element) {
+      $('*[data-dup-generate-id="true"]').each(function(index, element) {
         var heading = $(this);
+        heading.removeAttr('data-dup-generate-id');
         var headingText = heading.text()||'';
         var headingId = headingText.replace(/[^a-zA-Z0123456789]+/g,'-').toLowerCase().replace(/^\-/,'').replace(/\-$/,'');
+        headingId = headingId.substring(0, Math.min(32,headingId.length)).replace(/\-$/,'');
         h2Array.push({id:headingId, text: headingText});
         $(element).attr('id', headingId)
+      });
+
+      //Add drop caps to all p next to the h2
+      $('h2').each(function(index, element) {
+        var heading = $(this);
+        var nextP = heading.next('p');
+        nextP && nextP.addClass('-with-dropCap');
       });
 
 
@@ -304,7 +339,7 @@ ${entities.encode(endnote)}
 `;
 
       res.send(string);
-      //fs.writeFileSync(__dirname + '/log.html', rte,'utf8');
+      
 }
 
 
