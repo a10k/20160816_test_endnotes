@@ -190,7 +190,7 @@ function outputToClient(html, res){
         if(typeof endnoteOlElement === 'undefined'){
           var thisId = $(element).attr('id');
           if(thisId && thisId.match(/^endnote-/)){
-            $(element.parent).attr('id','endnote')
+            //$(element.parent).attr('id','endnote')
             endnoteOlElement = $(element.parent);
             $(element.parent).remove();
           }
@@ -254,12 +254,23 @@ function outputToClient(html, res){
         $(element).attr('id', headingId)
       });
 
-      //Add drop caps to all p next to the h2
+      /*Add drop caps to all p next to the h2
       $('h2').each(function(index, element) {
         var heading = $(this);
         var nextP = heading.next('p');
         nextP && nextP.addClass('-with-dropCap');
       });
+      */
+      //Only first parahrapg in document must be dropcap
+      $('p').each(function(index, element) {
+        index==0 && $(element).addClass('-with-dropCap');
+      });
+      // Remove all H1
+      $('h1').each(function(index, element) {
+        var h1 = $(this);
+        h1.wrap($(`<!-- WARNING: H1 REMOVED FROM WORD DOC "${h1.text()}"-->`))
+      });
+
 
 
       // Replace arrow with ' View in article' for all li in endnotes ol  
@@ -268,6 +279,8 @@ function outputToClient(html, res){
         var link = E(this);
         if(link.attr('href') && link.attr('href').match(/^#endnote/)){
           link.text(' View in article');
+          link.attr('id', E(link).parents('li').attr('id'));
+          E(link).parents('li').removeAttr('id');
         }
       });
 
@@ -282,7 +295,6 @@ function outputToClient(html, res){
   }
   var rte = $.html();
   var endnote = E.html();
-
 
   var string = `<!DOCTYPE html>
 <html lang="en">
