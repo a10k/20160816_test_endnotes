@@ -214,6 +214,9 @@ function outputToClient(html, res){
         var supText = $(this);
         if(supText.text() && supText.text().match(/\[\d+\]/) ){
           supText.text(supText.text().replace('[','').replace(']',''));
+          if(supText.attr('id')){
+            supText.attr('id',supText.attr('id').replace('ref','sup'));//FIX TO MATCH DD HARDCODED VALUE
+          }
         }
       });
 
@@ -280,6 +283,7 @@ function outputToClient(html, res){
         if(link.attr('href') && link.attr('href').match(/^#endnote/)){
           link.text(' View in article');
           link.attr('id', E(link).parents('li').attr('id'));
+          link.attr('href', link.attr('href').replace('ref','sup'));//FIX TO MATCH DD HARDCODED VALUE
           E(link).parents('li').removeAttr('id');
         }
       });
