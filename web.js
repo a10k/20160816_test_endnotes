@@ -167,6 +167,11 @@ function outputToClient(html, res){
           var imageId = plainText.replace(/\[DUP:insert\-figure(\d+)\]/,'$1');
           eachLine = `\n<img src="/content/dam/dup-us-en/articles/SLUG-TBD/${imageId}.jpg" class="-rwd" alt="" data-id="${imageId}"/>\n`;  
         }
+         //Insert table (proposed by Junko nd Aditi) 
+        if(plainText.match(/\[DUP:insert\-table(\d+)\]/)){
+          var imageId = plainText.replace(/\[DUP:insert\-table(\d+)\]/,'$1');
+          eachLine = `\n<!--Table Image ${imageId}-->\n<img src="/content/dam/dup-us-en/articles/SLUG-TBD/${imageId}.jpg" class="-rwd" alt="" data-id="${imageId}"/>\n`;  
+        }
 
 
         //Add nav id to the next element... 
