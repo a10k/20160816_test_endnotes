@@ -110,7 +110,7 @@ return string;
 }
 
 function outputToClient(html, res){
-  fs.writeFileSync(__dirname + '/log.html', html,'utf8');
+  //fs.writeFileSync(__dirname + '/log.html', html,'utf8');
       //Load HTML
       html = beautify(html, { indent_size: 2 });
 
