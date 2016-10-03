@@ -110,7 +110,7 @@ return string;
 }
 
 function outputToClient(html, res){
-  //fs.writeFileSync(__dirname + '/log.html', html,'utf8');
+  fs.writeFileSync(__dirname + '/log.html', html,'utf8');
       //Load HTML
       html = beautify(html, { indent_size: 2 });
 
@@ -241,6 +241,12 @@ function outputToClient(html, res){
         $(pInQuote).find('p').each(function(nestedIndex, nestedElement){
           $(nestedElement).replaceWith($(nestedElement).html())
         })
+        //Oct 3: Removing the smart quotes for begin quote markup
+        var afterRemovingSamrtQuote = $(pInQuote).html();
+        afterRemovingSamrtQuote = afterRemovingSamrtQuote.replace(/(^\s)(\&#x201C\;)/,'$1');
+        afterRemovingSamrtQuote = afterRemovingSamrtQuote.replace(/(\&#x201D\;)(\s$)/,'$2');
+
+        $(pInQuote).html(afterRemovingSamrtQuote);
       });
       //Fix blockquote span text p redundant issue
       $('blockquote').find('span[class="text"]').each(function(index, element) {
