@@ -164,13 +164,41 @@ function outputToClient(html, res){
 
         //Insert figure 
         if(plainText.match(/\[DUP:insert\-figure(\d+)\]/)){
-          var imageId = plainText.replace(/\[DUP:insert\-figure(\d+)\]/,'$1');
-          eachLine = `\n<img src="/content/dam/dup-us-en/articles/SLUG-TBD/${imageId}.jpg" class="-rwd" alt="" data-id="${imageId}"/>\n`;  
+          var imageId = plainText.replace(/.*\[DUP:insert\-figure(\d+)\].*/,'$1');
+          
+          var isNoshare = " DUPshare";
+          var isAlign = "";
+          var caption = "";
+          var labelShare = "";
+          var labelEmbed = "";
+
+          if(plainText.match(/\[DUP:NO\-SHARE\]/)){ isNoshare = " "; }
+          if(plainText.match(/\[DUP:ALIGN\-LEFT\]/)){ isAlign = " alignleft"; }
+          if(plainText.match(/\[DUP:ALIGN\-RIGHT\]/)){ isAlign = " alignright"; }
+          if(plainText.match(/\[DUP:CAPTION (.*?)\]/)){ caption = plainText.replace(/.*\[DUP:CAPTION (.*?)\].*/,'$1'); }
+          if(plainText.match(/\[DUP:LABEL\-SHARE (.*?)\]/)){ labelShare = ` data-dup-label-share="` + plainText.replace(/.*\[DUP:LABEL\-SHARE (.*?)\].*/,'$1') + `"`; }
+          if(plainText.match(/\[DUP:LABEL\-EMBED (.*?)\]/)){ labelEmbed = ` data-dup-label-embed="` + plainText.replace(/.*\[DUP:LABEL\-EMBED (.*?)\].*/,'$1') + `"`; }
+          
+          eachLine = `\n<!--Figure ${imageId}-->\n<img src="/content/dam/dup-us-en/articles/SLUG-TBD/${imageId}.jpg" class="-rwd${isNoshare}${isAlign}" alt="${caption}" data-dup-caption="${caption}" id="figure-${imageId}" ${labelShare} ${labelEmbed}/>\n`;
         }
          //Insert table (proposed by Junko nd Aditi) 
         if(plainText.match(/\[DUP:insert\-table(\d+)\]/)){
-          var imageId = plainText.replace(/\[DUP:insert\-table(\d+)\]/,'$1');
-          eachLine = `\n<!--Table Image ${imageId}-->\n<img src="/content/dam/dup-us-en/articles/SLUG-TBD/${imageId}.jpg" class="-rwd" alt="" data-id="${imageId}"/>\n`;  
+          var imageId = plainText.replace(/.*\[DUP:insert\-table(\d+)\].*/,'$1');
+          
+          var isNoshare = " DUPshare";
+          var isAlign = "";
+          var caption = "";
+          var labelShare = "";
+          var labelEmbed = "";
+
+          if(plainText.match(/\[DUP:NO\-SHARE\]/)){ isNoshare = " "; }
+          if(plainText.match(/\[DUP:ALIGN\-LEFT\]/)){ isAlign = " alignleft"; }
+          if(plainText.match(/\[DUP:ALIGN\-RIGHT\]/)){ isAlign = " alignright"; }
+          if(plainText.match(/\[DUP:CAPTION (.*?)\]/)){ caption = plainText.replace(/.*\[DUP:CAPTION (.*?)\].*/,'$1'); }
+          if(plainText.match(/\[DUP:LABEL\-SHARE (.*?)\]/)){ labelShare = ` data-dup-label-share="` + plainText.replace(/.*\[DUP:LABEL\-SHARE (.*?)\].*/,'$1') + `"`; }
+          if(plainText.match(/\[DUP:LABEL\-EMBED (.*?)\]/)){ labelEmbed = ` data-dup-label-embed="` + plainText.replace(/.*\[DUP:LABEL\-EMBED (.*?)\].*/,'$1') + `"`; }
+
+          eachLine = `\n<!--Table ${imageId}-->\n<img src="/content/dam/dup-us-en/articles/SLUG-TBD/${imageId}.jpg" class="-rwd${isNoshare}${isAlign}" alt="${caption}" data-dup-caption="${caption}" id="table-${imageId}" ${labelShare} ${labelEmbed}/>\n`;
         }
 
 
