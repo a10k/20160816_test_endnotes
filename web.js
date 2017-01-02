@@ -307,6 +307,12 @@ function outputToClient(html, res){
       $('p').each(function(index, element) {
         index==0 && $(element).addClass('-with-dropCap');
       });
+      //For styling first word
+      $('p.-with-dropCap').each(function(index, element) {
+        var originalText = $(element).html();
+        var modifiedText = originalText.replace(/([^\s]+)/,'<span class="-first-word">$1</span>');
+        $(element).html(modifiedText);
+      });
       // Remove all H1
       $('h1').each(function(index, element) {
         var h1 = $(this);
