@@ -207,6 +207,9 @@ function outputToClient(html, res){
           eachLine = `<div class="ADD-ID-NXT"></div>`;  
         }
 
+        if(eachLine.match(/\[DUP:insert\-interactive(.*?)\]/i)){ 
+          eachLine = eachLine.replace(/.*\[DUP:insert\-interactive(.*?)\].*/i,'<div style="width:100%;height:400px;background-color:#000;color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;"> Note to KS team: Please reach out to the \'Media Labs Team\' with the link to this webpage regarding the embed for interactive'+'$1'+'</div>');
+        }
 
 
         newHtml.push(eachLine);
