@@ -163,8 +163,8 @@ function outputToClient(html, res){
         }
 
         //Insert figure 
-        if(plainText.match(/\[DUP:insert\-figure(\d+)\]/)){
-          var imageId = plainText.replace(/.*\[DUP:insert\-figure(\d+)\].*/,'$1');
+        if(plainText.match(/\[DUP:insert\-figure(\S+)\]/)){
+          var imageId = plainText.replace(/.*\[DUP:insert\-figure(\S+)\].*/,'$1');
           
           var isNoshare = " DUPshare";
           var isAlign = "";
@@ -182,8 +182,8 @@ function outputToClient(html, res){
           eachLine = `\n<!--Figure ${imageId}-->\n<img src="/content/dam/dup-us-en/articles/SLUG-TBD/${imageId}.jpg" class="-rwd${isNoshare}${isAlign}" alt="${caption}" data-dup-caption="${caption}" id="figure-${imageId}" ${labelShare} ${labelEmbed}/>\n`;
         }
          //Insert table (proposed by Junko nd Aditi) 
-        if(plainText.match(/\[DUP:insert\-table(\d+)\]/)){
-          var imageId = plainText.replace(/.*\[DUP:insert\-table(\d+)\].*/,'$1');
+        if(plainText.match(/\[DUP:insert\-table(\S+)\]/)){
+          var imageId = plainText.replace(/.*\[DUP:insert\-table(\S+)\].*/,'$1');
           
           var isNoshare = " DUPshare";
           var isAlign = "";
